@@ -41,7 +41,6 @@ from airflow.api_fastapi.auth.managers.models.resource_details import (
 from airflow.api_fastapi.core_api.base import OrmClause
 from airflow.configuration import conf
 from airflow.models.dag import DagModel
-from airflow.utils.jwt_signer import JWTSigner, get_signing_key
 
 if TYPE_CHECKING:
     from sqlalchemy.sql import Select
@@ -49,15 +48,6 @@ if TYPE_CHECKING:
     from airflow.api_fastapi.auth.managers.base_auth_manager import BaseAuthManager, ResourceMethod
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-@cache
-def get_signer() -> JWTSigner:
-    return JWTSigner(
-        secret_key=get_signing_key("api", "auth_jwt_secret"),
-        expiration_time_in_seconds=conf.getint("api", "auth_jwt_expiration_time"),
-        audience="front-apis",
-    )
 
 
 def get_user(token_str: Annotated[str, Depends(oauth2_scheme)]) -> BaseUser:
