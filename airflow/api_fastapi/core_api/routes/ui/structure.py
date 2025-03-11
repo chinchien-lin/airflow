@@ -77,7 +77,6 @@ def structure_data(
     edges = dag_edges(dag)
 
     data = {
-        "arrange": dag.orientation,
         "nodes": nodes,
         "edges": edges,
     }
