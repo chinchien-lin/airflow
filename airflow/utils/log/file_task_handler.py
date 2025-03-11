@@ -36,7 +36,6 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 from airflow.configuration import conf
 from airflow.exceptions import AirflowException
 from airflow.executors.executor_loader import ExecutorLoader
-from airflow.security.tokens import JWTGenerator
 from airflow.utils.helpers import parse_template_string, render_template
 from airflow.utils.log.logging_mixin import SetContextPropagate
 from airflow.utils.log.non_caching_file_handler import NonCachingRotatingFileHandler
@@ -97,7 +96,7 @@ def _fetch_logs_from_service(url, log_relative_path):
     # Import occurs in function scope for perf. Ref: https://github.com/apache/airflow/pull/21438
     import requests
 
-    from airflow.security.tokens import JWTGenerator
+    from airflow.api_fastapi.auth.tokens import JWTGenerator
 
     timeout = conf.getint("webserver", "log_fetch_timeout_sec", fallback=None)
     signer = JWTGenerator(
@@ -108,7 +107,7 @@ def _fetch_logs_from_service(url, log_relative_path):
     response = requests.get(
         url,
         timeout=timeout,
-        headers={"Authorization": signer.generate("logs", {"filename": log_relative_path})},
+        headers={"Authorization": signer.generate({"sub": "task-logs", "filename": log_relative_path})},
     )
     response.encoding = "utf-8"
     return response
