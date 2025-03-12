@@ -94,10 +94,10 @@ class BaseAuthManager(Generic[T], LoggingMixin):
     def serialize_user(self, user: T) -> dict[str, Any]:
         """Create a subject and extra claims dict from a user object."""
 
-    def get_user_from_token(self, token: str) -> BaseUser:
+    async def get_user_from_token(self, token: str) -> BaseUser:
         """Verify the JWT token is valid and create a user object from it if valid."""
         try:
-            payload: dict[str, Any] = self._get_token_validator().validated_claims(token)
+            payload: dict[str, Any] = await self._get_token_validator().avalidated_claims(token)
             return self.deserialize_user(payload)
         except InvalidTokenError as e:
             log.error("JWT token is not valid")
